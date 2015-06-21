@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 'use strict';
-
 var fs = require('fs');
 var meow = require('meow');
 var getStdin = require('get-stdin');
-var Decompress = require('./');
+var Decompress = require('decompress');
 
 var cli = meow({
 	help: [
@@ -19,7 +18,7 @@ var cli = meow({
 		'Options',
 		'  -m, --mode     Set mode on the extracted files',
 		'  -s, --strip    Equivalent to --strip-components for tar'
-	].join('\n')
+	]
 }, {
 	string: [
 		'mode',

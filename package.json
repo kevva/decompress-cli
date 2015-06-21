@@ -1,0 +1,46 @@
+{
+  "name": "decompress-cli",
+  "version": "1.0.0",
+  "description": "Extracting archives made easy",
+  "license": "MIT",
+  "repository": "kevva/decompress-cli",
+  "author": {
+    "name": "Kevin Mårtensson",
+    "email": "kevinmartensson@gmail.com",
+    "url": "github.com/kevva"
+  },
+  "bin": {
+    "decompress": "cli.js"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "files": [
+    "cli.js"
+  ],
+  "keywords": [
+    "bz2",
+    "bzip2",
+    "cli",
+    "cli-app",
+    "decompress",
+    "extract",
+    "tar",
+    "tar.bz",
+    "tar.gz",
+    "zip",
+    "unzip"
+  ],
+  "dependencies": {
+    "get-stdin": "^4.0.1",
+    "decompress": "^2.3.0",
+    "meow": "^3.3.0"
+  },
+  "devDependencies": {
+    "ava": "^0.0.4",
+    "concat-stream": "^1.5.0"
+  }
+}
