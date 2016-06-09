@@ -1,96 +1,82 @@
 #!/usr/bin/env node
 'use strict';
-var fs = require('fs');
-var meow = require('meow');
-var getStdin = require('get-stdin');
-var Decompress = require('decompress');
+const arrify = require('arrify');
+const decompress = require('decompress');
+const getStdin = require('get-stdin');
+const meow = require('meow');
+const stripIndent = require('strip-indent');
 
-var cli = meow({
-	help: [
-		'Usage',
-		'  decompress <file> [directory]',
-		'  cat <file> | decompress [directory]',
-		'',
-		'Example',
-		'  decompress --strip 1 file.zip out',
-		'  cat file.zip | decompress out',
-		'',
-		'Options',
-		'  -m, --mode     Set mode on the extracted files',
-		'  -s, --strip    Equivalent to --strip-components for tar'
-	]
-}, {
+const cli = meow(`
+	Usage
+	  decompress <file> --out-dir=dist [--plugin=<name> ...]
+	  cat <file> | decompress --out-dir=dist
+
+	Example
+	  decompress --strip 1 --out-dir=dist file.zip
+	  decompress --plugin=tarxz --out-dir=dist file.tar.xz
+	  cat file.zip | decompress --out-dir=dist
+
+	Options
+	  -o, --out-dir  Output directory
+	  -p, --plugin   Override the default plugins
+	  -s, --strip    Remove leading directory components from extracted files
+`, {
 	string: [
-		'mode',
+		'out-dir',
+		'plugin',
 		'strip'
 	],
 	alias: {
-		m: 'mode',
+		o: 'out-dir',
+		p: 'plugin',
 		s: 'strip'
 	}
 });
 
-function isFile(path) {
-	if (/^[^\s]+\.\w*$/g.test(path)) {
-		return true;
-	}
-
+const requirePlugins = plugins => plugins.map(x => {
 	try {
-		return fs.statSync(path).isFile();
-	} catch (e) {
-		return false;
-	}
-}
+		return require(`decompress-${x}`)();
+	} catch (err) {
+		console.error(stripIndent(`
+			Unknown plugin: ${x}
 
-function run(src, dest, opts) {
-	var decompress = new Decompress(opts)
-		.src(src)
-		.dest(dest)
-		.use(Decompress.tar(opts))
-		.use(Decompress.tarbz2(opts))
-		.use(Decompress.targz(opts))
-		.use(Decompress.zip(opts));
+			Did you forgot to install the plugin?
+			You can install it with:
 
-	decompress.run(function (err) {
-		if (err) {
-			console.error(err.message);
-			process.exit(1);
-		}
-	});
-}
-
-if (process.stdin.isTTY) {
-	var src = cli.input;
-	var dest = process.cwd();
-
-	if (!src.length) {
-		console.error([
-			'Specify a file to decompress',
-			'',
-			'Example',
-			'  decompress --strip 1 file.zip out',
-			'  cat file.zip | decompress out'
-		].join('\n'));
-
+			  $ npm install -g decompress-${x}
+		`).trim());
 		process.exit(1);
 	}
+});
 
-	if (!isFile(src[src.length - 1])) {
-		dest = src[src.length - 1];
-		src.pop();
+const run = (input, opts) => {
+	opts = Object.assign({}, opts);
+
+	const dest = opts.outDir;
+	const plugins = arrify(opts.plugin);
+
+	if (plugins.length) {
+		opts.plugins = requirePlugins(plugins);
 	}
 
-	run(src, dest, cli.flags);
+	delete opts.outDir;
+	delete opts.plugin;
+
+	decompress(input, dest, opts);
+};
+
+if (!cli.input.length && process.stdin.isTTY) {
+	console.error('Specify a file');
+	process.exit(1);
+}
+
+if (!cli.flags.outDir) {
+	console.error('Specify a `--out-dir`');
+	process.exit(1);
+}
+
+if (cli.input.length) {
+	run(cli.input[0], cli.flags);
 } else {
-	var dest = cli.input;
-
-	if (dest.length && !isFile(dest[dest.length - 1])) {
-		dest = dest[dest.length - 1];
-	} else {
-		dest = process.cwd();
-	}
-
-	getStdin.buffer(function (buf) {
-		run(buf, dest, cli.flags);
-	});
+	getStdin.buffer().then(buf => run(buf, cli.flags));
 }

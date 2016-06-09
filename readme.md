@@ -18,16 +18,18 @@ $ npm install --global decompress-cli
 $ decompress --help
 
   Usage
-    $ decompress <file> [directory]
-    $ cat <file> | decompress [directory]
+    decompress <file> --out-dir=dist [--plugin=<name> ...]
+    cat <file> | decompress --out-dir=dist
 
   Example
-    $ decompress --strip 1 file.zip out
-    $ cat file.zip | decompress out
+    decompress --strip 1 --out-dir=dist file.zip
+    decompress --plugin=tarxz --out-dir=dist file.tar.xz
+    cat file.zip | decompress --out-dir=dist
 
   Options
-    -m, --mode     Set mode on the extracted files
-    -s, --strip    Equivalent to --strip-components for tar
+    -o, --out-dir  Output directory
+    -p, --plugin   Override the default plugins
+    -s, --strip    Remove leading directory components from extracted files
 ```
 
 

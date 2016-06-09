@@ -1,34 +1,24 @@
-'use strict';
-var path = require('path');
-var spawn = require('child_process').spawn;
-var concatStream = require('concat-stream');
-var test = require('ava');
+import fs from 'fs';
+import execa from 'execa';
+import pify from 'pify';
+import rimraf from 'rimraf';
+import test from 'ava';
 
-test('show help screen', function (t) {
-	t.plan(1);
-
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, 'cli.js'), ['--help']);
-
-	function end(str) {
-		t.assert(/Extracting archives made easy/.test(str), str);
-	}
-
-	cp.stdout.setEncoding('utf8');
-	cp.stdout.pipe(concat);
+test('show help screen', async t => {
+	t.regex(await execa.stdout('./cli.js', ['--help']), /Extracting archives made easy/);
 });
 
-test('show version', function (t) {
-	t.plan(1);
+test('show version', async t => {
+	t.is(await execa.stdout('./cli.js', ['--version']), require('./package').version);
+});
 
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, 'cli.js'), ['--version']);
-	var version = require('./package.json').version;
+test('`--out-dir` is mandatory', async t => {
+	const err = await t.throws(execa('./cli.js', ['fixture.zip']));
+	t.is(err.stderr.trim(), 'Specify a `--out-dir`');
+});
 
-	function end(str) {
-		t.assert(str.trim() === version, str);
-	}
-
-	cp.stdout.setEncoding('utf8');
-	cp.stdout.pipe(concat);
+test('extract archive', async t => {
+	await execa('./cli.js', ['fixture.zip', '--out-dir', 'dist']);
+	t.deepEqual(await pify(fs.readdir)('dist'), ['test.jpg']);
+	await pify(rimraf)('dist');
 });

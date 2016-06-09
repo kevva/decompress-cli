@@ -13,10 +13,10 @@
     "decompress": "cli.js"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4"
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "ava"
   },
   "files": [
     "cli.js"
@@ -35,12 +35,25 @@
     "unzip"
   ],
   "dependencies": {
-    "get-stdin": "^4.0.1",
-    "decompress": "^2.3.0",
-    "meow": "^3.3.0"
+    "arrify": "^1.0.1",
+    "decompress": "^4.0.0",
+    "get-stdin": "^5.0.1",
+    "meow": "^3.3.0",
+    "strip-indent": "^2.0.0"
   },
   "devDependencies": {
-    "ava": "^0.0.4",
-    "concat-stream": "^1.5.0"
+    "ava": "*",
+    "eslint-plugin-node": "^1.4.0",
+    "execa": "^0.4.0",
+    "pify": "^2.3.0",
+    "rimraf": "^2.5.2"
+  },
+  "xo": {
+    "plugins": [
+      "node"
+    ],
+    "rules": {
+      "node/process-exit-as-throw": 2
+    }
   }
 }
