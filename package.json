@@ -16,7 +16,7 @@
     "node": ">=4"
   },
   "scripts": {
-    "test": "ava"
+    "test": "xo && ava"
   },
   "files": [
     "cli.js"
@@ -46,9 +46,11 @@
     "eslint-plugin-node": "^1.4.0",
     "execa": "^0.4.0",
     "pify": "^2.3.0",
-    "rimraf": "^2.5.2"
+    "rimraf": "^2.5.2",
+    "xo": "*"
   },
   "xo": {
+    "esnext": true,
     "plugins": [
       "node"
     ],
