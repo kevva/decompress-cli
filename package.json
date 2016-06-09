@@ -1,6 +1,6 @@
 {
   "name": "decompress-cli",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Extracting archives made easy",
   "license": "MIT",
   "repository": "kevva/decompress-cli",
